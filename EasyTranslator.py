@@ -9,12 +9,11 @@ from translator import cnkiTranslator
 from translator import langdetect
 from MainWindow import Ui_MainWindow
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QDesktopWidget, QAction
-from PyQt5.QtCore import pyqtSignal, QFile
+from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtGui import QIcon, QPixmap
 from requests.exceptions import ConnectionError
 import sys
 import os
-import time
 
 
 def resource_path(relative_path):
@@ -23,11 +22,48 @@ def resource_path(relative_path):
     return os.path.join(os.path.abspath("."), relative_path)
 
 
+class Work_1(QThread):
+
+    done = pyqtSignal()
+
+    def __init__(self, text):
+        QThread.__init__(self)
+        self.text = text
+
+    def run(self):
+        self.direct = langdetect(self.text)
+        self.done.emit()
+
+
+class Work_2(QThread):
+
+    done = pyqtSignal(str, str)
+
+    def __init__(self, text, direct, fun_handle):
+        QThread.__init__(self)
+        self.text = text
+        self.direct = direct
+        self.fun_handle = fun_handle
+
+    def run(self):
+        self.result = self.fun_handle(self.text, self.direct)
+        self.done.emit(self.fun_handle.__name__, str(self.result))
+
+
 class EasyTranslator(QMainWindow):
 
     ui = Ui_MainWindow()
     count = 0
     trans = pyqtSignal(str, int)
+    work_1 = Work_1('')
+    work_2s = []
+    text = ''
+    direct = 0
+    work_2s.append(Work_2(text, direct, googleTraslator))
+    work_2s.append(Work_2(text, direct, bingTranslator))
+    work_2s.append(Work_2(text, direct, jinshanTranslator))
+    work_2s.append(Work_2(text, direct, youdaoTranslator))
+    work_2s.append(Work_2(text, direct, cnkiTranslator))
 
     def __init__(self):
         super().__init__()
@@ -48,12 +84,12 @@ class EasyTranslator(QMainWindow):
 
         self.ui.button_trans.clicked.connect(self.on_button_trans)
         self.ui.button_clear.clicked.connect(self.on_button_clear)
-        self.trans.connect(self.googleTrans)
-        self.trans.connect(self.baiduTrans)
-        self.trans.connect(self.bingTrans)
-        self.trans.connect(self.jinshanTrans)
-        self.trans.connect(self.youdaoTrans)
-        self.trans.connect(self.cnkiTrans)
+        self.trans.connect(self.transapi)
+        # self.trans.connect(self.baiduTrans)
+        # self.trans.connect(self.bingTrans)
+        # self.trans.connect(self.jinshanTrans)
+        # self.trans.connect(self.youdaoTrans)
+        # self.trans.connect(self.cnkiTrans)
         self.ui.button_goo.clicked.connect(self.on_button_goo)
         self.ui.button_bai.clicked.connect(self.on_button_bai)
         self.ui.button_bing.clicked.connect(self.on_button_bing)
@@ -61,6 +97,45 @@ class EasyTranslator(QMainWindow):
         self.ui.button_you.clicked.connect(self.on_button_you)
         self.ui.button_zhi.clicked.connect(self.on_button_zhi)
         aboutAct.triggered.connect(self.on_aboutAction)
+        self.work_1.done.connect(self.landet)
+        for work_2 in self.work_2s:
+            work_2.done.connect(self.disp)
+
+    def disp(self, fun_name, result):
+        if fun_name == 'googleTraslator':
+            self.ui.textEdit_goo.setText(result)
+        elif fun_name == 'bingTranslator':
+            self.ui.textEdit_bing.setText(result)
+        elif fun_name == 'jinshanTranslator':
+            self.ui.textEdit_jin.setText(result)
+        elif fun_name == 'youdaoTranslator':
+            self.ui.textEdit_you.setText(result)
+        else:
+            self.ui.textEdit_zhi.setText(result)
+        self.count += 1
+        if self.count == 5:
+            self.work()
+            self.count = 0
+
+    def transapi(self, text, direct):
+        # self.work_2s.append(Work_2(text, direct, googleTraslator))
+        # self.work_2s.append(Work_2(text, direct, bingTranslator))
+        # self.work_2s.append(Work_2(text, direct, jinshanTranslator))
+        # self.work_2s.append(Work_2(text, direct, youdaoTranslator))
+        # self.work_2s.append(Work_2(text, direct, cnkiTranslator))
+        transfuns = [googleTraslator, bingTranslator, jinshanTranslator, youdaoTranslator, cnkiTranslator]
+        i = 0
+        for work_2 in self.work_2s:
+            work_2.text = text
+            work_2.direct =direct
+            work_2.fun_handle = transfuns[i]
+            i += 1
+            work_2.start()
+
+
+    def landet(self):
+        # self.ui.textEdit_goo.setPlainText(str(self.work_1.direct))
+        self.trans.emit(self.text, self.work_1.direct)
 
     def wait(self):
         self.ui.button_trans.setEnabled(False)
@@ -85,30 +160,23 @@ class EasyTranslator(QMainWindow):
         self.ui.button_zhi.setEnabled(True)
 
     def on_button_trans(self):
+
         self.count = 0
         text = self.ui.textEdit_in.toPlainText()
+        self.text = text
         if text == '':
             print('no input')
             return
-        # time.sleep(10)
         ind = self.ui.comboBox.currentIndex()
         self.wait()
-        QApplication.processEvents()
         if ind == 0:
-            try:
-                direct = langdetect(text)
-            except ConnectionError as e:
-                # print(e)
-                QMessageBox.information(self, '警告', '网络连接错误，自动语言检测失败！')
-                self.work()
-                return
-            if direct is None:
-                QMessageBox.information(self, '警告', '自动语言检测失败，请尝试手动！')
-                self.work()
-                return
+            self.work_1.text = text
+            self.work_1.start()
+            return
         else:
             direct = ind - 1
-        self.trans.emit(text, direct)
+            self.trans.emit(text, direct)
+            return
 
         # print(text)
         # ind = self.ui.comboBox.currentIndex()
@@ -129,71 +197,71 @@ class EasyTranslator(QMainWindow):
         # self.ui.textEdit_you.setText(r5)
         # self.ui.textEdit_zhi.setText(str(r6))
 
-    def googleTrans(self, text, direct):
-        try:
-            r = googleTraslator(text, direct)
-        except ConnectionError as e:
-            self.ui.textEdit_goo.setText('网络连接错误，Google翻译失败！')
-        else:
-            self.ui.textEdit_goo.setText(r)
-        self.count += 1
-        if self.count == 6:
-            self.work()
-
-    def baiduTrans(self, text, direct):
-        try:
-            r = baiduTranslator(text, direct)
-        except ConnectionError as e:
-            self.ui.textEdit_bai.setText('网络连接错误，百度翻译失败！')
-        else:
-            self.ui.textEdit_bai.setText(r)
-        self.count += 1
-        if self.count == 6:
-            self.work()
-
-    def bingTrans(self, text, direct):
-        try:
-            r = bingTranslator(text, direct)
-        except ConnectionError as e:
-            self.ui.textEdit_bing.setText('网络连接错误，必应翻译失败！')
-        else:
-            self.ui.textEdit_bing.setText(r)
-        self.count += 1
-        if self.count == 6:
-            self.work()
-
-    def jinshanTrans(self, text, direct):
-        try:
-            r = jinshanTranslator(text, direct)
-        except ConnectionError as e:
-            self.ui.textEdit_jin.setText('网络连接错误，金山翻译失败！')
-        else:
-            self.ui.textEdit_jin.setText(r)
-        self.count += 1
-        if self.count == 6:
-            self.work()
-
-    def youdaoTrans(self, text, direct):
-        try:
-            r = youdaoTranslator(text, direct)
-        except ConnectionError as e:
-            self.ui.textEdit_you.setText('网络连接错误，有道翻译失败！')
-        else:
-            self.ui.textEdit_you.setText(r)
-        self.count += 1
-        if self.count == 6:
-            self.work()
-
-    def cnkiTrans(self, text, direct):
-        try:
-            r = cnkiTranslator(text, direct)
-        except ConnectionError as e:
-            self.ui.textEdit_zhi.setText('网络连接错误，知网翻译失败！')
-        else:
-            self.ui.textEdit_zhi.setText(str(r))
-        self.count += 1
-        if self.count == 6:
-            self.work()
+    # def googleTrans(self, text, direct):
+    #     try:
+    #         r = googleTraslator(text, direct)
+    #     except ConnectionError as e:
+    #         self.ui.textEdit_goo.setText('网络连接错误，Google翻译失败！')
+    #     else:
+    #         self.ui.textEdit_goo.setText(r)
+    #     self.count += 1
+    #     if self.count == 6:
+    #         self.work()
+    #
+    # def baiduTrans(self, text, direct):
+    #     try:
+    #         r = baiduTranslator(text, direct)
+    #     except ConnectionError as e:
+    #         self.ui.textEdit_bai.setText('网络连接错误，百度翻译失败！')
+    #     else:
+    #         self.ui.textEdit_bai.setText(r)
+    #     self.count += 1
+    #     if self.count == 6:
+    #         self.work()
+    #
+    # def bingTrans(self, text, direct):
+    #     try:
+    #         r = bingTranslator(text, direct)
+    #     except ConnectionError as e:
+    #         self.ui.textEdit_bing.setText('网络连接错误，必应翻译失败！')
+    #     else:
+    #         self.ui.textEdit_bing.setText(r)
+    #     self.count += 1
+    #     if self.count == 6:
+    #         self.work()
+    #
+    # def jinshanTrans(self, text, direct):
+    #     try:
+    #         r = jinshanTranslator(text, direct)
+    #     except ConnectionError as e:
+    #         self.ui.textEdit_jin.setText('网络连接错误，金山翻译失败！')
+    #     else:
+    #         self.ui.textEdit_jin.setText(r)
+    #     self.count += 1
+    #     if self.count == 6:
+    #         self.work()
+    #
+    # def youdaoTrans(self, text, direct):
+    #     try:
+    #         r = youdaoTranslator(text, direct)
+    #     except ConnectionError as e:
+    #         self.ui.textEdit_you.setText('网络连接错误，有道翻译失败！')
+    #     else:
+    #         self.ui.textEdit_you.setText(r)
+    #     self.count += 1
+    #     if self.count == 6:
+    #         self.work()
+    #
+    # def cnkiTrans(self, text, direct):
+    #     try:
+    #         r = cnkiTranslator(text, direct)
+    #     except ConnectionError as e:
+    #         self.ui.textEdit_zhi.setText('网络连接错误，知网翻译失败！')
+    #     else:
+    #         self.ui.textEdit_zhi.setText(str(r))
+    #     self.count += 1
+    #     if self.count == 6:
+    #         self.work()
 
     def on_button_clear(self):
         self.ui.textEdit_in.clear()

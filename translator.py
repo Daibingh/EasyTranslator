@@ -7,21 +7,32 @@ from bs4 import BeautifulSoup
 # from multiprocessing import Process, Pool
 
 
+# def langdetect(text):
+#     url = 'http://fanyi.baidu.com/langdetect'
+#     headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Mobile Safari/537.36'}
+#     rs = requests.post(url, headers=headers, data={'query': text[:min(len(text), 16)]})
+#     if rs.status_code != 200:
+#         print('请求错误代码: ', rs.status_code)
+#         return None
+#     if rs.json().get('error') != 0:
+#         print('detect failed!')
+#         return None
+#     if rs.json().get('lan') == 'en':
+#         return 1
+#     else:
+#         return 0
+
 def langdetect(text):
-    url = 'http://fanyi.baidu.com/langdetect'
+    url = 'https://cn.bing.com/tdetect'
     headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Mobile Safari/537.36'}
-    rs = requests.post(url, headers=headers, data={'query': text[:min(len(text), 16)]})
+    rs = requests.post(url, headers=headers, data={'text': text})
     if rs.status_code != 200:
         print('请求错误代码: ', rs.status_code)
         return None
-    if rs.json().get('error') != 0:
-        print('detect failed!')
-        return None
-    if rs.json().get('lan') == 'en':
-        return 1
-    else:
+    if rs.text == 'zh-CHS':
         return 0
-
+    else:
+        return 1
 
 def baiduTranslator(text, flg=0):
     headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Mobile Safari/537.36'}
@@ -179,11 +190,11 @@ if __name__ == '__main__':
     text2 = 'In this paper, a complete set of road traffic flow measurement system based on modular algorithm is established for traffic flow analysis of road vehicles. The whole road traffic flow measurement system consists of three parts: image preprocessing module, vehicle detection module and traffic flow statistics module'
     text3 = '人工智能'
     text4 = 'artificial'
-    print(langdetect(text))
+    # print(langdetect(text2))
     # print(jinshanTranslator(text4, 1))
-    # print(baiduTranslator(text2, 1))
+    print(baiduTranslator(text))
     # print(youdaoTranslator(text2, 1))
-    # print(bingTranslator(text2, 1))
+    # print(bingTranslator(text))
     # print(googleTraslator(text2, 1))
     # print(cnkiTranslator(text3))
 
