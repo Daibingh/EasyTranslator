@@ -31,7 +31,15 @@ class Work_1(QThread):
         self.text = text
 
     def run(self):
-        self.direct = langdetect(self.text)
+        try:
+            self.direct = langdetect(self.text)
+        except ConnectionError as e:
+            self.direct = -1
+            print('网络连接错误，检测语言失败！')
+        except Exception as e:
+            self.e = e
+            self.direct = -2
+            print(e, '检测语言失败！')
         self.done.emit()
 
 
@@ -46,7 +54,15 @@ class Work_2(QThread):
         self.fun_handle = fun_handle
 
     def run(self):
-        self.result = self.fun_handle(self.text, self.direct)
+        try:
+            self.result = self.fun_handle(self.text, self.direct)
+        except ConnectionError as e:
+            self.result = -1
+            print('网络连接错误，'+self.fun_handle.__name__+'翻译失败！')
+        except Exception as e:
+            self.e = e
+            self.result = -2
+            print('e, ' + self.fun_handle.__name__ + '翻译失败！')
         self.done.emit(self.fun_handle.__name__, str(self.result))
 
 
@@ -60,6 +76,7 @@ class EasyTranslator(QMainWindow):
     text = ''
     direct = 0
     work_2s.append(Work_2(text, direct, googleTraslator))
+    work_2s.append(Work_2(text, direct, baiduTranslator))
     work_2s.append(Work_2(text, direct, bingTranslator))
     work_2s.append(Work_2(text, direct, jinshanTranslator))
     work_2s.append(Work_2(text, direct, youdaoTranslator))
@@ -103,17 +120,49 @@ class EasyTranslator(QMainWindow):
 
     def disp(self, fun_name, result):
         if fun_name == 'googleTraslator':
-            self.ui.textEdit_goo.setText(result)
+            if result == '-1':
+                self.ui.textEdit_goo.setText('网络连接错误，'+fun_name+'翻译失败！')
+            elif result == '-2':
+                self.ui.textEdit_goo.setText(str(self.work_2s[0].e) + '，' + fun_name + '翻译失败！')
+            else:
+                self.ui.textEdit_goo.setText(result)
+        elif fun_name == 'baiduTranslator':
+            if result == '-1':
+                self.ui.textEdit_bai.setText('网络连接错误，'+fun_name+'翻译失败！')
+            elif result == '-2':
+                self.ui.textEdit_bai.setText(str(self.work_2s[1].e) + '，' + fun_name + '翻译失败！')
+            else:
+                self.ui.textEdit_bai.setText(result)
         elif fun_name == 'bingTranslator':
-            self.ui.textEdit_bing.setText(result)
+            if result == '-1':
+                self.ui.textEdit_bing.setText('网络连接错误，' + fun_name + '翻译失败！')
+            elif result == '-2':
+                self.ui.textEdit_bing.setText(str(self.work_2s[2].e) + '，' + fun_name + '翻译失败！')
+            else:
+                self.ui.textEdit_bing.setText(result)
         elif fun_name == 'jinshanTranslator':
-            self.ui.textEdit_jin.setText(result)
+            if result == '-1':
+                self.ui.textEdit_jin.setText('网络连接错误，' + fun_name + '翻译失败！')
+            elif result == '-2':
+                self.ui.textEdit_jin.setText(str(self.work_2s[3].e) + '，' + fun_name + '翻译失败！')
+            else:
+                self.ui.textEdit_jin.setText(result)
         elif fun_name == 'youdaoTranslator':
-            self.ui.textEdit_you.setText(result)
+            if result == '-1':
+                self.ui.textEdit_you.setText('网络连接错误，' + fun_name + '翻译失败！')
+            elif result == '-2':
+                self.ui.textEdit_you.setText(str(self.work_2s[4].e) + '，' + fun_name + '翻译失败！')
+            else:
+                self.ui.textEdit_you.setText(result)
         else:
-            self.ui.textEdit_zhi.setText(result)
+            if result == '-1':
+                self.ui.textEdit_zhi.setText('网络连接错误，' + fun_name + '翻译失败！')
+            elif result == '-2':
+                self.ui.textEdit_zhi.setText(str(self.work_2s[5].e) + '，' + fun_name + '翻译失败！')
+            else:
+                self.ui.textEdit_zhi.setText(result)
         self.count += 1
-        if self.count == 5:
+        if self.count == 6:
             self.work()
             self.count = 0
 
@@ -123,7 +172,7 @@ class EasyTranslator(QMainWindow):
         # self.work_2s.append(Work_2(text, direct, jinshanTranslator))
         # self.work_2s.append(Work_2(text, direct, youdaoTranslator))
         # self.work_2s.append(Work_2(text, direct, cnkiTranslator))
-        transfuns = [googleTraslator, bingTranslator, jinshanTranslator, youdaoTranslator, cnkiTranslator]
+        transfuns = [googleTraslator, baiduTranslator, bingTranslator, jinshanTranslator, youdaoTranslator, cnkiTranslator]
         i = 0
         for work_2 in self.work_2s:
             work_2.text = text
@@ -135,7 +184,14 @@ class EasyTranslator(QMainWindow):
 
     def landet(self):
         # self.ui.textEdit_goo.setPlainText(str(self.work_1.direct))
-        self.trans.emit(self.text, self.work_1.direct)
+        if self.work_1.direct == -1:
+            QMessageBox.information(self, '错误', '网络连接错误，检测语言失败！')
+            self.work()
+        elif self.work_1.direct == -2:
+            QMessageBox.information(self, '错误', str(self.work_1.e) + '，检测语言失败！')
+            self.work()
+        else:
+            self.trans.emit(self.text, self.work_1.direct)
 
     def wait(self):
         self.ui.button_trans.setEnabled(False)

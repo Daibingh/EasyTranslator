@@ -4,6 +4,8 @@ import requests
 import sys
 import re
 from bs4 import BeautifulSoup
+import random
+from hashlib import md5
 # from multiprocessing import Process, Pool
 
 
@@ -25,7 +27,7 @@ from bs4 import BeautifulSoup
 def langdetect(text):
     url = 'https://cn.bing.com/tdetect'
     headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Mobile Safari/537.36'}
-    rs = requests.post(url, headers=headers, data={'text': text})
+    rs = requests.post(url, headers=headers, data={'text': text}, timeout=1)
     if rs.status_code != 200:
         print('请求错误代码: ', rs.status_code)
         return None
@@ -35,16 +37,29 @@ def langdetect(text):
         return 1
 
 def baiduTranslator(text, flg=0):
+    url = 'http://api.fanyi.baidu.com/api/trans/vip/translate'
     headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Mobile Safari/537.36'}
-    data = {'from': 'zh', 'to': 'en', 'query': text}
+    appid = 20180906000203440
+    secretKey = 'hi6HmTHso5erk8RQoyUD'
+    salt =  random.randint(32768, 65536)
+    t = str(appid) + text + str(salt) + secretKey
+    sign = md5(t.encode('utf-8')).hexdigest()
+    data = {
+        'from': 'zh',
+        'to': 'en',
+        'q': text,
+        'appid': 20180906000203440,
+        'salt': salt,
+        'sign': sign
+    }
     if flg != 0:
         data['from'] = 'en'
         data['to'] = 'zh'
-    rs = requests.post('http://fanyi.baidu.com/basetrans', headers=headers, data=data)
+    rs = requests.post(url, headers=headers, data=data, timeout=1)
     if rs.status_code != 200:
         print('请求错误代码: ', rs.status_code)
         return None
-    return rs.json()['trans'][0]['dst']
+    return rs.json()['trans_result'][0]['dst']
 
 
 def youdaoTranslator(text, flg=0):
@@ -56,7 +71,7 @@ def youdaoTranslator(text, flg=0):
     }
     if flg != 0:
         data['type'] = 'EN2ZH_CN'
-    rs = requests.post(url, headers=headers, data=data)
+    rs = requests.post(url, headers=headers, data=data, timeout=1)
     if rs.status_code != 200:
         print('请求错误代码: ', rs.status_code)
         return None
@@ -75,7 +90,7 @@ def jinshanTranslator(text, flg=0):
         data['t'] = 'zh'
         if text[-1] != '.':
             data['w'] = text + '.'
-    rs = requests.post(url, params=params, headers=headers, data=data)
+    rs = requests.post(url, params=params, headers=headers, data=data, timeout=1)
     if rs.status_code != 200:
         print('请求错误代码: ', rs.status_code)
         return None
@@ -93,7 +108,7 @@ def bingTranslator(text, flg=0):
     if flg != 0:
         data['from'] = 'en'
         data['to'] = 'zh-CHS'
-    rs = requests.post(url, headers=headers, data=data)
+    rs = requests.post(url, headers=headers, data=data, timeout=1)
     if rs.status_code != 200:
         print('请求错误代码: ', rs.status_code)
         return None
@@ -104,7 +119,7 @@ def cnkiTranslator(text, flg=0):
     url = 'http://dict.cnki.net/dict_result.aspx'
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Safari/537.36'}
     params = {'searchword': text}
-    rs = requests.get(url, params=params, headers=headers)
+    rs = requests.get(url, params=params, headers=headers, timeout=3)
     if rs.status_code != 200:
         print('请求错误代码: ', rs.status_code)
         return None
@@ -163,7 +178,7 @@ def googleTraslator(text, flg=0):
     if flg != 0:
         params['sl'] = 'en'
         params['tl'] = 'zh-CN'
-    rs = requests.get(url, headers=headers, params=params)
+    rs = requests.get(url, headers=headers, params=params, timeout=1)
     if rs.status_code != 200:
         print('请求错误代码: ', rs.status_code)
         return None
@@ -193,8 +208,8 @@ if __name__ == '__main__':
     # print(langdetect(text2))
     # print(jinshanTranslator(text4, 1))
     print(baiduTranslator(text))
-    # print(youdaoTranslator(text2, 1))
+    print(youdaoTranslator(text2, 1))
     # print(bingTranslator(text))
     # print(googleTraslator(text2, 1))
-    # print(cnkiTranslator(text3))
+    print(cnkiTranslator('依托互联网数据资源和自然语言处理技术优势'))
 
