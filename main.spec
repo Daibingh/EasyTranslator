@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(['main.py'],
-             pathex=['E:\\Python\\pycharm\\test_designer'],
+             pathex=['E:\\Python\\pycharm\\EasyTranslator'],
              binaries=[],
              datas= [],
              hiddenimports=[],

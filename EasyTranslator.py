@@ -62,7 +62,7 @@ class Work_2(QThread):
         except Exception as e:
             self.e = e
             self.result = -2
-            print('e, ' + self.fun_handle.__name__ + '翻译失败！')
+            print(e, self.fun_handle.__name__ + '翻译失败！')
         self.done.emit(self.fun_handle.__name__, str(self.result))
 
 
