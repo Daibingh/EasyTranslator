@@ -121,7 +121,7 @@ def cnkiTranslator(text, flg=0):
     url = 'http://dict.cnki.net/dict_result.aspx'
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Safari/537.36'}
     params = {'searchword': text}
-    rs = requests.get(url, params=params, headers=headers, timeout=3)
+    rs = requests.get(url, params=params, headers=headers, timeout=1)
     if rs.status_code != 200:
         print('请求错误代码: ', rs.status_code)
         return None

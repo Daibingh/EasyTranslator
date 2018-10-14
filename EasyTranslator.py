@@ -9,7 +9,7 @@ from translator import cnkiTranslator
 from translator import langdetect
 from MainWindow import Ui_MainWindow
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QDesktopWidget, QAction
-from PyQt5.QtCore import pyqtSignal, QThread
+from PyQt5.QtCore import pyqtSignal, QThread, QEventLoop
 from PyQt5.QtGui import QIcon, QPixmap
 from requests.exceptions import ConnectionError
 import sys
@@ -66,6 +66,24 @@ class Work_2(QThread):
         self.done.emit(self.fun_handle.__name__, str(self.result))
 
 
+class Work_3(QThread):
+
+    has_new = pyqtSignal(str)
+
+    def __int__(self):
+        super().__init__()
+        # self.app = app
+
+    def run(self):
+        text = ''
+        while True:
+            text_ = QApplication.clipboard().text()
+            if text_ != text:
+                text = text_
+                self.has_new.emit(text)
+                print(text)
+
+
 class EasyTranslator(QMainWindow):
 
     ui = Ui_MainWindow()
@@ -81,6 +99,7 @@ class EasyTranslator(QMainWindow):
     work_2s.append(Work_2(text, direct, jinshanTranslator))
     work_2s.append(Work_2(text, direct, youdaoTranslator))
     work_2s.append(Work_2(text, direct, cnkiTranslator))
+    work_3 = Work_3()
 
     def __init__(self):
         super().__init__()
@@ -93,30 +112,101 @@ class EasyTranslator(QMainWindow):
         self.ui.label_4.setPixmap(QPixmap(resource_path('powerword.png')))
         self.ui.label_5.setPixmap(QPixmap(resource_path('youdao.png')))
         self.ui.label_6.setPixmap(QPixmap(resource_path('cnki.png')))
+        self.ui.checkBox_bai.setCheckState(2)
+        self.ui.checkBox_goo.setCheckState(2)
+        self.ui.checkBox_bing.setCheckState(2)
+        self.ui.checkBox_you.setCheckState(2)
+        self.ui.checkBox_zhi.setCheckState(2)
+        self.ui.checkBox_jin.setCheckState(2)
         aboutAct = QAction('关于', self)
+        self.moni = QAction('开始监控', self)
+        self.moni.setObjectName('moni_action')
         self.menuBar().addAction(aboutAct)
+        self.menuBar().addAction(self.moni)
         self.loadStyleSheet(resource_path('white.qss'))
-        self.resize( 820,650)
+        self.resize(860, 650)
         self.center()
 
         self.ui.button_trans.clicked.connect(self.on_button_trans)
         self.ui.button_clear.clicked.connect(self.on_button_clear)
         self.trans.connect(self.transapi)
-        # self.trans.connect(self.baiduTrans)
-        # self.trans.connect(self.bingTrans)
-        # self.trans.connect(self.jinshanTrans)
-        # self.trans.connect(self.youdaoTrans)
-        # self.trans.connect(self.cnkiTrans)
+
         self.ui.button_goo.clicked.connect(self.on_button_goo)
         self.ui.button_bai.clicked.connect(self.on_button_bai)
         self.ui.button_bing.clicked.connect(self.on_button_bing)
         self.ui.button_jin.clicked.connect(self.on_button_jin)
         self.ui.button_you.clicked.connect(self.on_button_you)
         self.ui.button_zhi.clicked.connect(self.on_button_zhi)
+
         aboutAct.triggered.connect(self.on_aboutAction)
+        self.moni.triggered.connect(self.on_moni_triggered)
+        self.work_3.has_new.connect(self.copy_trans)
         self.work_1.done.connect(self.landet)
         for work_2 in self.work_2s:
             work_2.done.connect(self.disp)
+
+    def on_checkBox_goo_stateChanged(self, state):
+        if state == 0:
+            self.ui.gridLayout_10.removeWidget(self.ui.widget_goo)
+            self.ui.widget_goo.hide()
+        else:
+            self.ui.gridLayout_10.addWidget(self.ui.widget_goo)
+            self.ui.widget_goo.show()
+
+    def on_checkBox_bai_stateChanged(self, state):
+        if state == 0:
+            self.ui.gridLayout_10.removeWidget(self.ui.widget_bai)
+            self.ui.widget_bai.hide()
+        else:
+            self.ui.gridLayout_10.addWidget(self.ui.widget_bai)
+            self.ui.widget_bai.show()
+
+    def on_checkBox_bing_stateChanged(self, state):
+        if state == 0:
+            self.ui.gridLayout_10.removeWidget(self.ui.widget_bing)
+            self.ui.widget_bing.hide()
+        else:
+            self.ui.gridLayout_10.addWidget(self.ui.widget_bing)
+            self.ui.widget_bing.show()
+
+    def on_checkBox_jin_stateChanged(self, state):
+        if state == 0:
+            self.ui.gridLayout_10.removeWidget(self.ui.widget_jin)
+            self.ui.widget_jin.hide()
+        else:
+            self.ui.gridLayout_10.addWidget(self.ui.widget_jin)
+            self.ui.widget_jin.show()
+
+    def on_checkBox_you_stateChanged(self, state):
+        if state == 0:
+            self.ui.gridLayout_10.removeWidget(self.ui.widget_you)
+            self.ui.widget_you.hide()
+        else:
+            self.ui.gridLayout_10.addWidget(self.ui.widget_you)
+            self.ui.widget_you.show()
+
+    def on_checkBox_zhi_stateChanged(self, state):
+        if state == 0:
+            self.ui.gridLayout_10.removeWidget(self.ui.widget_zhi)
+            self.ui.widget_zhi.hide()
+        else:
+            self.ui.gridLayout_10.addWidget(self.ui.widget_zhi)
+            self.ui.widget_zhi.show()
+
+    def on_moni_triggered(self):
+        if self.moni.text() == '开始监控':
+            self.moni.setText('停止监控')
+            self.menuBar().setStyleSheet('QMenuBar{background:red}')
+            self.work_3.start()
+        else:
+            self.moni.setText('开始监控')
+            self.menuBar().setStyleSheet('QMenuBar{background:rgb(187, 212, 238)}')
+            self.work_3.terminate()
+
+    def copy_trans(self, text):
+        self.ui.textEdit_in.setText(text)
+        # self.work_3.sleep(3)
+        self.on_button_trans()
 
     def disp(self, fun_name, result):
         if fun_name == 'googleTraslator':
@@ -167,11 +257,6 @@ class EasyTranslator(QMainWindow):
             self.count = 0
 
     def transapi(self, text, direct):
-        # self.work_2s.append(Work_2(text, direct, googleTraslator))
-        # self.work_2s.append(Work_2(text, direct, bingTranslator))
-        # self.work_2s.append(Work_2(text, direct, jinshanTranslator))
-        # self.work_2s.append(Work_2(text, direct, youdaoTranslator))
-        # self.work_2s.append(Work_2(text, direct, cnkiTranslator))
         transfuns = [googleTraslator, baiduTranslator, bingTranslator, jinshanTranslator, youdaoTranslator, cnkiTranslator]
         i = 0
         for work_2 in self.work_2s:
@@ -234,91 +319,6 @@ class EasyTranslator(QMainWindow):
             self.trans.emit(text, direct)
             return
 
-        # print(text)
-        # ind = self.ui.comboBox.currentIndex()
-        # if ind == 0:
-        #     direct = langdetect(text)
-        # else:
-        #     direct = ind - 1
-        # r1 = googleTraslator(text, direct)
-        # r2 = baiduTranslator(text, direct)
-        # r3 = bingTranslator(text, direct)
-        # r4 = jinshanTranslator(text, direct)
-        # r5 = youdaoTranslator(text, direct)
-        # r6 = cnkiTranslator(text, direct)
-        # self.ui.textEdit_goo.setText(r1)
-        # self.ui.textEdit_bai.setText(r2)
-        # self.ui.textEdit_bing.setText(r3)
-        # self.ui.textEdit_jin.setText(r4)
-        # self.ui.textEdit_you.setText(r5)
-        # self.ui.textEdit_zhi.setText(str(r6))
-
-    # def googleTrans(self, text, direct):
-    #     try:
-    #         r = googleTraslator(text, direct)
-    #     except ConnectionError as e:
-    #         self.ui.textEdit_goo.setText('网络连接错误，Google翻译失败！')
-    #     else:
-    #         self.ui.textEdit_goo.setText(r)
-    #     self.count += 1
-    #     if self.count == 6:
-    #         self.work()
-    #
-    # def baiduTrans(self, text, direct):
-    #     try:
-    #         r = baiduTranslator(text, direct)
-    #     except ConnectionError as e:
-    #         self.ui.textEdit_bai.setText('网络连接错误，百度翻译失败！')
-    #     else:
-    #         self.ui.textEdit_bai.setText(r)
-    #     self.count += 1
-    #     if self.count == 6:
-    #         self.work()
-    #
-    # def bingTrans(self, text, direct):
-    #     try:
-    #         r = bingTranslator(text, direct)
-    #     except ConnectionError as e:
-    #         self.ui.textEdit_bing.setText('网络连接错误，必应翻译失败！')
-    #     else:
-    #         self.ui.textEdit_bing.setText(r)
-    #     self.count += 1
-    #     if self.count == 6:
-    #         self.work()
-    #
-    # def jinshanTrans(self, text, direct):
-    #     try:
-    #         r = jinshanTranslator(text, direct)
-    #     except ConnectionError as e:
-    #         self.ui.textEdit_jin.setText('网络连接错误，金山翻译失败！')
-    #     else:
-    #         self.ui.textEdit_jin.setText(r)
-    #     self.count += 1
-    #     if self.count == 6:
-    #         self.work()
-    #
-    # def youdaoTrans(self, text, direct):
-    #     try:
-    #         r = youdaoTranslator(text, direct)
-    #     except ConnectionError as e:
-    #         self.ui.textEdit_you.setText('网络连接错误，有道翻译失败！')
-    #     else:
-    #         self.ui.textEdit_you.setText(r)
-    #     self.count += 1
-    #     if self.count == 6:
-    #         self.work()
-    #
-    # def cnkiTrans(self, text, direct):
-    #     try:
-    #         r = cnkiTranslator(text, direct)
-    #     except ConnectionError as e:
-    #         self.ui.textEdit_zhi.setText('网络连接错误，知网翻译失败！')
-    #     else:
-    #         self.ui.textEdit_zhi.setText(str(r))
-    #     self.count += 1
-    #     if self.count == 6:
-    #         self.work()
-
     def on_button_clear(self):
         self.ui.textEdit_in.clear()
 
@@ -354,4 +354,4 @@ class EasyTranslator(QMainWindow):
         self.setGeometry(qr)
 
     def on_aboutAction(self):
-        QMessageBox.information(self, 'About', 'EasyTranslator version 1.0\nDeveloped by Daibingh')
+        QMessageBox.information(self, 'About', 'EasyTranslator version 2.0\nDeveloped by Daibingh')
