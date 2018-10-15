@@ -9,8 +9,9 @@ from translator import cnkiTranslator
 from translator import langdetect
 from MainWindow import Ui_MainWindow
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QDesktopWidget, QAction
-from PyQt5.QtCore import pyqtSignal, QThread, QEventLoop
+from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtGui import QIcon, QPixmap
+import PyQt5.QtCore as QtCore
 from requests.exceptions import ConnectionError
 import sys
 import os
@@ -205,7 +206,12 @@ class EasyTranslator(QMainWindow):
 
     def copy_trans(self, text):
         self.ui.textEdit_in.setText(text)
-        # self.work_3.sleep(3)
+        self.hide()
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        self.show()
+        self.hide()
+        self.setWindowFlags(QtCore.Qt.Widget)
+        self.show()
         self.on_button_trans()
 
     def disp(self, fun_name, result):
