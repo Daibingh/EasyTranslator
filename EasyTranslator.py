@@ -73,16 +73,15 @@ class Work_3(QThread):
 
     def __int__(self):
         super().__init__()
-        # self.app = app
 
     def run(self):
-        text = ''
+        self.text = ''
         while True:
             text_ = QApplication.clipboard().text()
-            if text_ != text:
-                text = text_
-                self.has_new.emit(text)
-                print(text)
+            if text_ != self.text:
+                self.text = text_
+                self.has_new.emit(self.text)
+                print(self.text)
 
 
 class EasyTranslator(QMainWindow):
@@ -206,6 +205,7 @@ class EasyTranslator(QMainWindow):
 
     def copy_trans(self, text):
         self.ui.textEdit_in.setText(text)
+        self.showNormal()
         self.hide()
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.show()
