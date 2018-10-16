@@ -145,6 +145,12 @@ class EasyTranslator(QMainWindow):
         for work_2 in self.work_2s:
             work_2.done.connect(self.disp)
 
+    def keyPressEvent(self, event):
+        if QApplication.keyboardModifiers() == QtCore.Qt.ControlModifier \
+                and event.key() == QtCore.Qt.Key_Q:
+            self.on_button_trans()
+        event.accept()
+
     def on_checkBox_goo_stateChanged(self, state):
         if state == 0:
             self.ui.gridLayout_10.removeWidget(self.ui.widget_goo)
