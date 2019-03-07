@@ -104,6 +104,8 @@ def bingTranslator(text, flg=0):
 
 
 def cnkiTranslator(text, flg=0):
+    if len(text) > 10:
+        return 'too long for cnki!'
     url = 'http://dict.cnki.net/dict_result.aspx'
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Safari/537.36'}
     params = {'searchword': text}

@@ -114,8 +114,42 @@ class EasyTranslator(QMainWindow, Ui_MainWindow):
         self.button_trans.clicked.connect(self.on_button_trans)
         self.launch.connect(self.loader.load_threads)
         self.loader.done.connect(self.show_result)
+        self.button_clear.clicked.connect(self.on_button_clear)
+        self.button_goo.clicked.connect(self.on_button_goo)
+        self.button_bai.clicked.connect(self.on_button_bai)
+        self.button_bing.clicked.connect(self.on_button_bing)
+        self.button_jin.clicked.connect(self.on_button_jin)
+        self.button_you.clicked.connect(self.on_button_you)
+        self.button_zhi.clicked.connect(self.on_button_zhi)
 
         self.thread.start()
+
+    def closeEvent(self, event):
+        self.thread.quit()
+        self.thread.wait()
+        event.accept()  # let the window close
+
+    def on_button_goo(self):
+        QApplication.clipboard().setText(self.textEdit_goo.toPlainText())
+
+    def on_button_bai(self):
+        QApplication.clipboard().setText(self.textEdit_bai.toPlainText())
+
+
+    def on_button_bing(self):
+        QApplication.clipboard().setText(self.textEdit_bing.toPlainText())
+
+    def on_button_jin(self):
+        QApplication.clipboard().setText(self.textEdit_jin.toPlainText())
+
+    def on_button_you(self):
+        QApplication.clipboard().setText(self.textEdit_you.toPlainText())
+
+    def on_button_zhi(self):
+        QApplication.clipboard().setText(self.textEdit_zhi.toPlainText())
+
+    def on_button_clear(self):
+        self.textEdit_in.clear()
 
     def show_result(self):
         # for i, work in enumerate(self.loader.works):
@@ -534,8 +568,8 @@ class EasyTranslator(QMainWindow, Ui_MainWindow):
 #             self.trans.emit(text, direct)
 #             return
 #
-#     def on_button_clear(self):
-#         self.ui.textEdit_in.clear()
+    # def on_button_clear(self):
+    #     self.ui.textEdit_in.clear()
 #
 #     def on_button_goo(self):
 #         QApplication.clipboard().setText(self.ui.textEdit_goo.toPlainText())
