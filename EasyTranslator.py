@@ -34,11 +34,16 @@ class Work(QThread):
         self.result = ''
 
     def run(self):
-        result = self.fun_handle(self.text, self.flg)
-        print(result)
+        try:
+            self.result = self.fun_handle(self.text, self.flg)
+        except Exception as e:
+            self.result = 'error!'
+        # print(self.result)
 
 
 class Loader(QObject):
+
+    done = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -47,20 +52,16 @@ class Loader(QObject):
         for fun in funs:
             self.works.append(Work(fun))
 
-    def load_threads(self):
-        # text = self.ui.textEdit_in.toPlainText()  # get text content.
-        text = 'hello world!'
+    def load_threads(self, index, text):
         if text == '':
             print('no input')
+            self.done.emit()
             return
 
-        # self.ui.disable_ui()
-        ind = 0
-        # ind = self.ui.comboBox.currentIndex()  # get the translation direction.
-        if ind == 0:  # 自动检测语言
+        if index == 0:  # 自动检测语言
             lan_type = langdetect(text)  # lan_type 0: zh; 1: en
         else:  # 否则，采用选用的语言
-            lan_type = ind - 1
+            lan_type = index - 1
 
         for work in self.works:
             work.text = text
@@ -69,12 +70,12 @@ class Loader(QObject):
 
         for work in self.works:
             work.wait()
-            # self.ui.textEdit_goo.setText(work.text)
-            print(work.result)
-        # self.ui.enable_ui()
-
+            # print(work.result)
+        self.done.emit()
 
 class EasyTranslator(QMainWindow, Ui_MainWindow):
+
+    launch = pyqtSignal(int, str)
 
     def __init__(self):
 
@@ -107,12 +108,26 @@ class EasyTranslator(QMainWindow, Ui_MainWindow):
         self.loader = Loader()
         self.thread = QThread()
         self.loader.moveToThread(self.thread)
+        self.textEdit_objs = [self.textEdit_goo, self.textEdit_bai, self.textEdit_bing, self.textEdit_jin, self.textEdit_you, self.textEdit_zhi]
 
         self.thread.finished.connect(self.loader.deleteLater)
+        self.button_trans.clicked.connect(self.on_button_trans)
+        self.launch.connect(self.loader.load_threads)
+        self.loader.done.connect(self.show_result)
+
         self.thread.start()
 
-        self.button_trans.clicked.connect(self.loader.load_threads)
+    def show_result(self):
+        # for i, work in enumerate(self.loader.works):
+        if self.textEdit_in.toPlainText() != '':
+            for obj, work in zip(self.textEdit_objs, self.loader.works):
+                obj.setText(str(work.result))
 
+        self.enable_ui()
+
+    def on_button_trans(self):
+        self.disable_ui()
+        self.launch.emit(self.comboBox.currentIndex(), self.textEdit_in.toPlainText())
 
     def disable_ui(self):
         self.button_trans.setEnabled(False)
@@ -147,6 +162,62 @@ class EasyTranslator(QMainWindow, Ui_MainWindow):
         self.button_jin.setEnabled(True)
         self.button_you.setEnabled(True)
         self.button_zhi.setEnabled(True)
+
+    def keyPressEvent(self, event):
+        if QApplication.keyboardModifiers() == QtCore.Qt.ControlModifier \
+                and event.key() == QtCore.Qt.Key_Q:
+            self.on_button_trans()
+        event.accept()
+
+    def on_checkBox_goo_stateChanged(self, state):
+        if state == 0:
+            self.gridLayout_10.removeWidget(self.widget_goo)
+            self.widget_goo.hide()
+        else:
+            self.gridLayout_10.addWidget(self.widget_goo)
+            self.widget_goo.show()
+
+    def on_checkBox_bai_stateChanged(self, state):
+        if state == 0:
+            self.gridLayout_10.removeWidget(self.widget_bai)
+            self.widget_bai.hide()
+        else:
+            self.gridLayout_10.addWidget(self.widget_bai)
+            self.widget_bai.show()
+
+    def on_checkBox_bing_stateChanged(self, state):
+        if state == 0:
+            self.gridLayout_10.removeWidget(self.widget_bing)
+            self.widget_bing.hide()
+        else:
+            self.gridLayout_10.addWidget(self.widget_bing)
+            self.widget_bing.show()
+
+    def on_checkBox_jin_stateChanged(self, state):
+        if state == 0:
+            self.gridLayout_10.removeWidget(self.widget_jin)
+            self.widget_jin.hide()
+        else:
+            self.gridLayout_10.addWidget(self.widget_jin)
+            self.widget_jin.show()
+
+    def on_checkBox_you_stateChanged(self, state):
+        if state == 0:
+            self.gridLayout_10.removeWidget(self.widget_you)
+            self.widget_you.hide()
+        else:
+            self.gridLayout_10.addWidget(self.widget_you)
+            self.widget_you.show()
+
+    def on_checkBox_zhi_stateChanged(self, state):
+        if state == 0:
+            self.gridLayout_10.removeWidget(self.widget_zhi)
+            self.widget_zhi.hide()
+        else:
+            self.gridLayout_10.addWidget(self.widget_zhi)
+            self.widget_zhi.show()
+
+
 
 # def resource_path(relative_path):
 #     if hasattr(sys, '_MEIPASS'):

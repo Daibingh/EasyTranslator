@@ -10,7 +10,7 @@ from urllib.parse import quote
 
 
 
-timeout = 3
+timeout = 2
 
 def langdetect(text):
     url = 'https://cn.bing.com/tdetect'
@@ -54,31 +54,18 @@ def baiduTranslator(text, flg=0):
 
 def youdaoTranslator(text, flg=0):
 
-    url_pre = "http://www.youdao.com/w/"
-    headers = {'User-Agent': "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36"}
-    ch = quote(text)
-    url = url_pre + ch + '/'
-    rs = requests.get(url, headers=headers, timeout=timeout)
-    if rs.status_code != 200:
-        print('请求错误代码: ', rs.status_code)
-        return None
-    # print(rs.text)
-    patern = re.compile(r'<div id="fanyiToggle">.*?<div class="trans-container">.*?<p>.*?</p>.*?<p>(.*?)</p>.*?<p>.*?<a.*?>.*?</a>.*?</p>.*?</div>.*?</div>', re.S)  # long sentense
-    m = re.search(patern, rs.text)
-    if m is not None:
-        return m[1]
-
-    if flg == 0:
-        patern3 = re.compile(r'<div class="trans-container">.*?<ul>.*?<li>(.*?)</li>.*?</ul>.*?</div>', re.S)  # for english word to chinese
-        m3 = re.search(patern3, rs.text)
-        if m3 is not None:
-            return m3[1]
-    else:
-        patern2 = re.compile(r'<a class="search-js" href=".*?#keyfrom=E2Ctranslation">(.*?)</a>', re.S)  # for chinese short phrase to english
-        m2 = re.search(patern2, rs.text)
-        if m2 is not None:
-            return m2[1]
-    return None
+    url = 'http://m.youdao.com/translate'
+    headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Mobile Safari/537.36'}
+    data = {
+        'inputtext': text,
+        'type': 'AUTO'
+    }
+    rs = requests.post(url, headers=headers, data=data)
+    # pattern = re.compile(r'<ul id="translateResult">\W*?<li>(.*?)</li>\W*?</ul>', re.S)
+    html = rs.text.replace('\r\n', '')
+    soup = BeautifulSoup(html, 'lxml')
+    result = soup.select('#translateResult')
+    return result[0].text.strip()
 
 
 def jinshanTranslator(text, flg=0):
@@ -216,7 +203,7 @@ In 2018, Microsoft surpassed Apple as the most valuable publicly traded company 
     # print(langdetect(text2))
     # print(jinshanTranslator(text4, 1))
     # print(baiduTranslator(text))
-    print(youdaoTranslator('翻译服务', 1))
+    print(youdaoTranslator('主要是', 0))
     # print(bingTranslator(text))
     # print(googleTraslator(text2, 1))
     # print(cnkiTranslator('依托互联网数据资源和自然语言处理技术优势'))
