@@ -195,8 +195,7 @@ class EasyTranslator(QMainWindow, Ui_MainWindow):
         self.button_zhi.setEnabled(True)
 
     def keyPressEvent(self, event):
-        if QApplication.keyboardModifiers() == QtCore.Qt.ControlModifier \
-                and event.key() == QtCore.Qt.Key_Q:
+        if QApplication.keyboardModifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier and event.key() == QtCore.Qt.Key_Q:
             self.on_button_trans()
         event.accept()
 

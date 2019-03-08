@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(['main.py'],
-             pathex=['E:\\Python\\pycharm\\EasyTranslator'],
+             pathex=['/home/hdb/github/EasyTranslator'],
              binaries=[],
              datas= [],
              hiddenimports=[],
@@ -15,14 +15,14 @@ a = Analysis(['main.py'],
              cipher=block_cipher)
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
-a.datas += [('white.qss','.\\white.qss','DATA'),
-			 ('google.png','.\\google.png','DATA'),
-			 ('baidu.png','.\\baidu.png','DATA'),
-			 ('bing.png','.\\bing.png','DATA'),
-			 ('powerword.png','.\\powerword.png','DATA'),
-			 ('youdao.png','.\\youdao.png','DATA'),
-			 ('cnki.png','.\\cnki.png','DATA'),
-			 ('icon.ico','.\\icon.ico','DATA')]
+a.datas += [('white.qss','white.qss','DATA'),
+			 ('google.png','google.png','DATA'),
+			 ('baidu.png','baidu.png','DATA'),
+			 ('bing.png','bing.png','DATA'),
+			 ('powerword.png','powerword.png','DATA'),
+			 ('youdao.png','youdao.png','DATA'),
+			 ('cnki.png','cnki.png','DATA'),
+			 ('icon.ico','icon.ico','DATA')]
 exe = EXE(pyz,
           a.scripts,
           a.binaries,
