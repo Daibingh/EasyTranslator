@@ -24,16 +24,11 @@ if __name__ == '__main__':
     window = EasyTranslator()
 
     def callback():
-        # window.hide()
-        # wflg = window.windowFlags()
-        # window.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         window.setWindowState(window.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
         window.activateWindow()
         text = QApplication.clipboard().text()
         window.textEdit_in.setText(text)
         window.on_button_trans()
-        # window.show()
-        # window.setWindowFlags(wflg)
 
     def exit_app():
         window.close()
