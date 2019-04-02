@@ -16,6 +16,7 @@ from PyQt5.QtCore import QObject
 from requests.exceptions import ConnectionError
 import sys
 import os
+import sources
 
 
 def resource_path(relative_path):
