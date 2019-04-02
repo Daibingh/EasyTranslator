@@ -287,7 +287,7 @@
                  <widget class="QTextEdit" name="textEdit_goo">
                   <property name="font">
                    <font>
-                    <pointsize>10</pointsize>
+                    <pointsize>12</pointsize>
                    </font>
                   </property>
                  </widget>
@@ -345,7 +345,7 @@
                  <widget class="QTextEdit" name="textEdit_bai">
                   <property name="font">
                    <font>
-                    <pointsize>10</pointsize>
+                    <pointsize>12</pointsize>
                    </font>
                   </property>
                  </widget>
@@ -403,7 +403,7 @@
                  <widget class="QTextEdit" name="textEdit_bing">
                   <property name="font">
                    <font>
-                    <pointsize>10</pointsize>
+                    <pointsize>12</pointsize>
                    </font>
                   </property>
                  </widget>
@@ -461,7 +461,7 @@
                  <widget class="QTextEdit" name="textEdit_jin">
                   <property name="font">
                    <font>
-                    <pointsize>10</pointsize>
+                    <pointsize>12</pointsize>
                    </font>
                   </property>
                  </widget>
@@ -519,7 +519,7 @@
                  <widget class="QTextEdit" name="textEdit_you">
                   <property name="font">
                    <font>
-                    <pointsize>10</pointsize>
+                    <pointsize>12</pointsize>
                    </font>
                   </property>
                  </widget>
@@ -571,7 +571,7 @@
                  <widget class="QTextEdit" name="textEdit_zhi">
                   <property name="font">
                    <font>
-                    <pointsize>10</pointsize>
+                    <pointsize>12</pointsize>
                    </font>
                   </property>
                  </widget>
@@ -608,7 +608,7 @@
      <x>0</x>
      <y>0</y>
      <width>858</width>
-     <height>17</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

@@ -27,6 +27,7 @@ if __name__ == '__main__':
         window.setWindowState(window.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
         window.activateWindow()
         text = QApplication.clipboard().text()
+        text = text.strip().replace('\r\n', ' ')
         window.textEdit_in.setText(text)
         window.on_button_trans()
 

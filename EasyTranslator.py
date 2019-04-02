@@ -81,6 +81,12 @@ class EasyTranslator(QMainWindow, Ui_MainWindow):
 
         super().__init__()
         self.setupUi(self)
+        self.textEdit_bai.setFontPointSize(12)
+        self.textEdit_bing.setFontPointSize(12)
+        self.textEdit_goo.setFontPointSize(12)
+        self.textEdit_jin.setFontPointSize(12)
+        self.textEdit_you.setFontPointSize(12)
+        self.textEdit_zhi.setFontPointSize(12)
 
         self.setWindowTitle('EasyTranslator')
         self.setWindowIcon(QIcon(resource_path('icon.png')))
@@ -96,9 +102,10 @@ class EasyTranslator(QMainWindow, Ui_MainWindow):
         self.checkBox_you.setCheckState(2)
         self.checkBox_zhi.setCheckState(2)
         self.checkBox_jin.setCheckState(2)
-        self.aboutAct = QAction('关于', self)
-        self.menuBar().addAction(self.aboutAct)
-        self.loadStyleSheet(resource_path('white.qss'))
+        self.aboutAct = QAction('Version', self)
+        self.aboutMenu = self.menuBar().addMenu("About")
+        self.aboutMenu.addAction(self.aboutAct)
+        self.loadStyleSheet(resource_path('dark.qss'))
         self.resize(860, 650)
         self.center()
 
@@ -118,6 +125,7 @@ class EasyTranslator(QMainWindow, Ui_MainWindow):
         self.button_jin.clicked.connect(self.on_button_jin)
         self.button_you.clicked.connect(self.on_button_you)
         self.button_zhi.clicked.connect(self.on_button_zhi)
+        self.aboutAct.triggered.connect(self.on_aboutAction)
 
         self.thread.start()
 
@@ -246,7 +254,8 @@ class EasyTranslator(QMainWindow, Ui_MainWindow):
         else:
             self.gridLayout_10.addWidget(self.widget_zhi)
             self.widget_zhi.show()
-
+    def on_aboutAction(self):
+        QMessageBox.information(self, 'About', 'EasyTranslator version 2.0\nDeveloped by Daibingh')
 
 
 # def resource_path(relative_path):

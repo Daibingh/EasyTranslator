@@ -16,13 +16,15 @@ a = Analysis(['main.py'],
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 a.datas += [('white.qss','white.qss','DATA'),
+        ('dark.qss','dark.qss','DATA'),
 			 ('google.png','google.png','DATA'),
 			 ('baidu.png','baidu.png','DATA'),
 			 ('bing.png','bing.png','DATA'),
 			 ('powerword.png','powerword.png','DATA'),
 			 ('youdao.png','youdao.png','DATA'),
 			 ('cnki.png','cnki.png','DATA'),
-			 ('icon.ico','icon.ico','DATA')]
+			 ('icon.ico','icon.ico','DATA'),
+       ('checkbox.png','checkbox.png','DATA')]
 exe = EXE(pyz,
           a.scripts,
           a.binaries,
