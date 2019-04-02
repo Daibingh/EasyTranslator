@@ -1,5 +1,7 @@
 # 使用说明
 
+![](EasyTranslator_010.bmp)
+
 Linux 下翻译取词软件，dist/EasyTranslator 是打包好的可以在 Linux 直接运行的软件。windows 下的还没有打包，可以配置好 Python环境，以源码方式运行。
 
 - 融合六个翻译引擎，支持中英互译
