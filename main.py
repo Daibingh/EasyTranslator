@@ -21,8 +21,6 @@ class WinEventFilter(QAbstractNativeEventFilter):
 
 
 if __name__ == '__main__':	
-	os.environ["QT_IM_MODULE"] = "fcitx"
-	# os.environ["XMODIFIERS"] = "@im=fcitx"
 	app = QApplication(sys.argv)
 	window = EasyTranslator()
 
