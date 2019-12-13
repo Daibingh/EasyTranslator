@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(['main.py'],
-             pathex=['/home/hdb/github/EasyTranslator'],
+             pathex=['/media/hdb/MobileDriver/github/EasyTranslator'],
              binaries=[],
              datas= [],
              hiddenimports=[],
