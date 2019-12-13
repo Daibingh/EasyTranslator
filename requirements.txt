@@ -1,5 +1,5 @@
 pyqtkeybind==0.0.3
-requests==2.18.4
+requests==2.20.0
 beautifulsoup4==4.8.1
 PyQt5==5.8.2
 PyQt5-sip==4.19.14
