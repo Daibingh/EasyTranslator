@@ -27,10 +27,6 @@ def langdetect(text):
 def baiduTranslator(text, flg=0):
     url = 'http://api.fanyi.baidu.com/api/trans/vip/translate'
     headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Mobile Safari/537.36'}
-    appid = 20180906000203440
-    secretKey = 'hi6HmTHso5erk8RQoyUD'
-    # appid = 00000
-    # secretKey = 'xxxxxx'
     salt =  random.randint(32768, 65536)
     t = str(appid) + text + str(salt) + secretKey
     sign = md5(t.encode('utf-8')).hexdigest()
