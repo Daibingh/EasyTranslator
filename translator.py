@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import random
 from hashlib import md5
 from urllib.parse import quote
-
+from config import appid, secretKey
 
 
 timeout = 2
@@ -38,7 +38,7 @@ def baiduTranslator(text, flg=0):
         'from': 'zh',
         'to': 'en',
         'q': text,
-        'appid': 20180906000203440,
+        'appid': appid,
         'salt': salt,
         'sign': sign
     }
